@@ -1,1 +1,1 @@
-coffee -wo ../js/ *.coffee
+coffee -wo js/ coffee/*.coffee

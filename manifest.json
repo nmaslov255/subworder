@@ -1,7 +1,7 @@
 {
    "manifest_version": 2,
-   "name": "Простой перевод",
-   "version": "0.01",
+   "name": "subworder",
+   "version": "0.1a",
    // "icons": {
        // "16": "16x16.png",
        // "32": "32x32.png",
@@ -26,7 +26,7 @@
     ],
 
    "browser_action": {
-        "default_title": "Открыть переводчик",
+        "default_title": "Открыть меню",
         // "default_icon": "48x48.png",
         "default_popup": "index.html"
    }
