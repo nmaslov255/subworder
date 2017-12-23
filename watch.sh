@@ -1,0 +1,1 @@
+coffee -wo ../js/ *.coffee
