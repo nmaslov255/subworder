@@ -37,7 +37,6 @@ getTranslate = (str, callback) ->
     }, callback
 
 ###*
- * becouse translate independet of contect, we take all string + translate
  * @param  {String} string    
  * @param  {String} translate 
  * @return {String}           string with one random replaced word
