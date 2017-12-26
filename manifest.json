@@ -1,7 +1,7 @@
 {
    "manifest_version": 2,
    "name": "subworder",
-   "version": "0.1a",
+   "version": "0.1",
    // "icons": {
        // "16": "16x16.png",
        // "32": "32x32.png",
@@ -11,8 +11,8 @@
  
     "content_scripts": [
         {
-            // "matches": ["<all_urls>"],
-            "matches": ["http://*.ru/*", "https://*.ru/*"],
+            "matches": ["<all_urls>"],
+            // "matches": ["http://*.ru/*", "https://*.ru/*"],
             "js": ["js/lib/jquery-3.2.1.min.js", "js/main.js"]
         }
     ],
