@@ -4,9 +4,9 @@ __translate__ = 'ru-en'
 __yaApi__ = 'https://translate.yandex.net/api/v1.5/tr.json/translate'
 __apiKey__ = 'trnsl.1.1.20171221T053807Z.13d50c58e726aebe.5d363c1f44bd833d28b8dd317c62b65af39c0b4d'
 
-__sentenceRegExp__ = /([А-ЯЕЁ].*?\.)/g
-__wordsRegExp__ = /([а-яА-ЯеёЕЁ]{3,})/g # find russian word in text
-__wordDensity__ = 1 # means that we take every ?th word
+__sentenceRegr__ = /([А-ЯЁ].*?[\.\!\?\:])/g
+__wordsReg__ = /([а-яёА-ЯЁ]{3,})/g 
+__wordDensity__ = 0.1 # means that we take every ?th word
 
 __valideTags__ = 
     isWhiteList: false
@@ -14,24 +14,29 @@ __valideTags__ =
 
 # main
 $(document).ready ->
-    words = []
-    subWordsIn document, (text) -> 
-        words.push text 
+    elems = []
+    subTextIn document, (elem) -> 
+        if elem.textContent.match(__sentenceRegr__)?
+            elems.push elem 
 
-    density = words.length * __wordDensity__
-    words = getRandomWords words, density
+    sentences = (sentence.textContent for sentence in elems)
 
-    rusWords = []
-    for word in words
-        if typeof word isnt 'undefined'
-            rusWords.push word.textContent
+    words = [] # may be duplicate words
+    for sentence, n in sentences
+        for word in getRandomWords sentence.match(__wordsReg__), __wordDensity__
+            words.push word
 
-    getTranslate rusWords.join("\n"), (resp) ->
-        engWords = resp.text[0].split("\n")
+    getTranslate words.join('\n'), (resp) ->
+        engWords = resp.text[0].split('\n')
 
-        for word, n in words
-            words[n].textContent = engWords[n]
-# library
+        for sentence, n in sentences
+            for word, i in engWords
+                if sentence.match(words[i])?
+                    pattern = /(?<=[^а-яёА-ЯЁ]|^)/.source + words[i] + /(?=[^а-яёА-ЯЁ]|$)/.source
+                    sentences[n] = sentence.replace(new RegExp(pattern, 'g'), word)
+        
+        for sentence, n in sentences
+            elems[n].textContent = sentence
 
 ###*
  * Finds text elements in DOM
@@ -39,9 +44,9 @@ $(document).ready ->
  * @param  {Function} handler callback, take string
  * @return {Boolean}
 ###
-subWordsIn = (DOM, handler) ->
+subTextIn = (DOM, handler) ->
     validateTag = (tag) -> 
-        isIncludes = __valideTags__.tags.indexOf(tag) isnt -1
+        isIncludes = tag in __valideTags__.tags
         if __valideTags__.isWhiteList then isIncludes else not isIncludes
     
     elems = DOM.getElementsByTagName('*');
@@ -49,10 +54,14 @@ subWordsIn = (DOM, handler) ->
         do (elem) -> for child in elem.childNodes
             do (child) -> if child.nodeType is 3
                 handler child
-                # console.log elem
 
+###*
+ * @param  {Array}   words   
+ * @param  {Integer} density 
+ * @return {Array}
+###
 getRandomWords = (words, density) ->
-    words[n] for n in getRandomIntegers 0, words.length, density
+    words[n] for n in getRandomIntegers 0, words.length - 1, density
 
 ###*
  * @param  {Integer} min 
@@ -70,11 +79,7 @@ getRandomInteger = (min, max) ->
  * @return {Array}           Array with random integers
 ###
 getRandomIntegers = (min, max, length) -> 
-    list = []
-    while length >= 0
-        list.push getRandomInteger min, max
-        length--
-    return list
+    getRandomInteger min, max for [0..length]
 
 ###*
  * ajax query for yandex.translate
@@ -88,37 +93,3 @@ getTranslate = (str, callback) ->
         text: str,
         key: __apiKey__,
     }, callback
-
-###*
- * @param  {String} string    
- * @param  {String} translate 
- * @return {String}           string with one random replaced word
-###
-randReplaceWord = (string, translate) ->
-    oldWords = string.split ' '
-    newWords = translate.split ' '
-
-    if oldWords.length == newWords.length
-        rand  = getRandomInteger 0, newWords.length - 1
-        oldWords[rand] = newWords[rand]
-        oldWords.join ' '
-    else string
-
-###*d
- * @param  {Object} $elem JQuery node
- * @return {Boolean}      
-###
-filterElement = ($elem) -> 
-    $child  = $elem.children()
-    isWords = checkRegExp $elem.text(), __wordsRegExp__ 
-
-    if $child.length is 0 and isWords then true else false
-
-###*
- * @param  {String} str     
- * @param  {String} pattern 
- * @return {Boolean}
-###
-checkRegExp = (str, pattern) ->
-    reg = new RegExp(pattern)
-    if reg.test(str) then true else false
