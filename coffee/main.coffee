@@ -2,10 +2,10 @@
 __translate__ = 'ru-en'
 
 __yaApi__ = 'https://translate.yandex.net/api/v1.5/tr.json/translate'
-__apiKey__ = 'trnsl.1.1.20171221T053807Z.13d50c58e726aebe.5d363c1f44bd833d28b8dd317c62b65af39c0b4d'
+__apiKey__ = ''
 
 __sentenceRegr__ = /([А-ЯЁ].*?[\.\!\?\:])/g
-__wordsReg__ = /([а-яёА-ЯЁ]{3,})/g 
+__wordsReg__ = /([а-яёА-ЯЁ]{4,})/g 
 __wordDensity__ = 0.1 # means that we take every ?th word
 
 __valideTags__ = 
@@ -23,6 +23,7 @@ $(document).ready ->
 
     words = [] # may be duplicate words
     for sentence, n in sentences
+        console.log sentence
         for word in getRandomWords sentence.match(__wordsReg__), __wordDensity__
             words.push word
 
@@ -36,7 +37,18 @@ $(document).ready ->
                     sentences[n] = sentence.replace(new RegExp(pattern, 'g'), word)
         
         for sentence, n in sentences
+            console.log elems[n]
             elems[n].textContent = sentence
+            console.log elems
+            # wrapNode(elems[n], 'b')
+
+
+wrapNode = (textNode, tagName) ->
+    wrapper = document.createElement(tagName)
+    textNode.parentNode.insertBefore(wrapper, textNode)
+    wrapper.appendChild(textNode)
+    return wrapper
+
 
 ###*
  * Finds text elements in DOM
@@ -61,6 +73,7 @@ subTextIn = (DOM, handler) ->
  * @return {Array}
 ###
 getRandomWords = (words, density) ->
+    console.log words
     words[n] for n in getRandomIntegers 0, words.length - 1, density
 
 ###*
